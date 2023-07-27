@@ -2,23 +2,26 @@ import java.util.Iterator;
 
 public class GBLinkedList<T> implements GBList<T> {
     private Node<T> head;
+    private Node<T> tail;
     private int size;
 
     public GBLinkedList() {
-        size = 0;
+        this.head = null;
+        this.tail = null;
+        this.size = 0;
     }
 
     @Override
     public boolean add(T value) {
-
-        Node<T> last = getLastNode();
-        if (last == null) {
-            head = new Node<T>(value);
+        Node<T> node = new Node<T>(value);
+        if (this.size == 0) {
+            this.head = node;
+            this.tail = this.head;
         } else {
-            last.next = new Node<>(value);
+            this.tail.next = node;
+            this.tail = node;
         }
         this.size++;
-
         return true;
     }
 
@@ -28,15 +31,18 @@ public class GBLinkedList<T> implements GBList<T> {
 
         Node<T> insertedNode = new Node<T>(value);
         if (index == 0) {
-            insertedNode.next = head;
-            head = insertedNode;
+            insertedNode.next = this.head;
+            this.head = insertedNode;
+            if (this.tail == null) this.tail = insertedNode;
+        } else if (index == size) {
+            this.tail.next = insertedNode;
+            this.tail = insertedNode;
         } else {
             Node<T> previousNode = getNodeOfIndex(index - 1);
             insertedNode.next = previousNode.next;
             previousNode.next = insertedNode;
         }
         this.size++;
-
         return true;
     }
 
@@ -45,7 +51,7 @@ public class GBLinkedList<T> implements GBList<T> {
     public void remove(int index) {
         checkIndexOutOfBounds(index);
         if (index == 0) {
-            head = head.next;
+            this.head = this.head.next;
         } else {
             Node<T> priviousNode = getNodeOfIndex(index - 1);
             priviousNode.next = priviousNode.next.next;
@@ -95,7 +101,7 @@ public class GBLinkedList<T> implements GBList<T> {
         try {
             array = (T[]) new Object[this.size];
             int i = 0;
-            Node<T> node = head;
+            Node<T> node = this.head;
             while (i < this.size) {
                 array[i] = node.value;
                 node = node.next;
@@ -106,13 +112,14 @@ public class GBLinkedList<T> implements GBList<T> {
         }
         return array;
     }
+
     @Override
     public String toString() {
-        if (head == null) return "{}";
+        if (this.head == null) return "{}";
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{");
-        Node<T> node = head;
+        Node<T> node = this.head;
         stringBuilder.append(node.value);
         while (node.next != null) {
             node = node.next;
@@ -128,24 +135,22 @@ public class GBLinkedList<T> implements GBList<T> {
         if (index < 0 || index > this.size) throw new IndexOutOfBoundsException();
     }
 
-    private Node<T> getLastNode() {
-        if (head == null) return null;
-        Node<T> currentNode = head;
-        while (currentNode.next != null) {
-            currentNode = currentNode.next;
-        }
-        return currentNode;
-    }
+//    private Node<T> getLastNode() {
+//        if (head == null) return null;
+//        Node<T> currentNode = head;
+//        while (currentNode.next != null) {
+//            currentNode = currentNode.next;
+//        }
+//        return currentNode;
+//    }
 
     private Node<T> getNodeOfIndex(int index) {
         int i = 0;
-        Node<T> currentNode = head;
+        Node<T> currentNode = this.head;
         while (i < index) {
             currentNode = currentNode.next;
             i++;
         }
         return currentNode;
     }
-
-
 }
