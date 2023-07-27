@@ -9,12 +9,11 @@ public class Node<T> {
 
     public Node(T value) {
         this(value, null);
+
     }
 
     public Node() {
-        this(null, null);
+        this(null,null);
     }
-
-
 
 }

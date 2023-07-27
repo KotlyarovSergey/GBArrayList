@@ -10,36 +10,53 @@ public class GBLinkedList<T> implements GBList<T> {
 
     @Override
     public boolean add(T value) {
-        try {
-            Node<T> last = getLastNode();
-            if(last==null){
-                head = new Node<T>(value);
-            }else {
-                last.next = new Node<>(value);
-            }
-            this.size++;
-        } catch (ClassCastException e){
-            return false;
+
+        Node<T> last = getLastNode();
+        if (last == null) {
+            head = new Node<T>(value);
+        } else {
+            last.next = new Node<>(value);
         }
+        this.size++;
+
         return true;
     }
 
-    public boolean add(T value, int index)
-    {
-        if(index >= this.size) return this.add(value);
+    @Override
+    public boolean add(int index, T value) {
+        checkIndexOutOfBounds(index);
 
-        return  true;
+        Node<T> insertedNode = new Node<T>(value);
+        if (index == 0) {
+            insertedNode.next = head;
+            head = insertedNode;
+        } else {
+            Node<T> previousNode = getNodeOfIndex(index - 1);
+            insertedNode.next = previousNode.next;
+            previousNode.next = insertedNode;
+        }
+        this.size++;
+
+        return true;
     }
+
 
     @Override
     public void remove(int index) {
+        checkIndexOutOfBounds(index);
+        if (index == 0) {
+            head = head.next;
+        } else {
+            Node<T> priviousNode = getNodeOfIndex(index - 1);
+            priviousNode.next = priviousNode.next.next;
+        }
 
+        this.size--;
     }
 
     @Override
     public T get(int index) {
-//        Node<T> node = getNodeOfIndex(index);
-//        return node.value;
+        checkIndexOutOfBounds(index);
         return getNodeOfIndex(index).value;
     }
 
@@ -49,15 +66,46 @@ public class GBLinkedList<T> implements GBList<T> {
     }
 
     @Override
-    public void update(int index, Object o) {
-
+    public void update(int index, T value) {
+        checkIndexOutOfBounds(index);
+        Node<T> node = getNodeOfIndex(index);
+        node.value = value;
     }
 
     @Override
-    public Iterator iterator() {        // !!!!!!!!!!!!!!!!!1
-        return null;
+    public Iterator<T> iterator() {
+        return new ArrayIterator<>(this.toArray());
+//        return new Iterator<T>() {
+//            int index = 0;
+//            @Override
+//            public boolean hasNext() {
+//                return index < size;
+//            }
+//            @Override
+//            public T next() {
+//                return getNodeOfIndex(index++).value;
+//            }
+//        };
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public T[] toArray() {
+        T[] array;
+        try {
+            array = (T[]) new Object[this.size];
+            int i = 0;
+            Node<T> node = head;
+            while (i < this.size) {
+                array[i] = node.value;
+                node = node.next;
+                i++;
+            }
+        } catch (ClassCastException e) {
+            throw new RuntimeException();
+        }
+        return array;
+    }
     @Override
     public String toString() {
         if (head == null) return "{}";
@@ -66,7 +114,7 @@ public class GBLinkedList<T> implements GBList<T> {
         stringBuilder.append("{");
         Node<T> node = head;
         stringBuilder.append(node.value);
-        while (node.next != null){
+        while (node.next != null) {
             node = node.next;
             stringBuilder.append(", ");
             stringBuilder.append(node.value);
@@ -76,29 +124,28 @@ public class GBLinkedList<T> implements GBList<T> {
         return stringBuilder.toString();
     }
 
-    private Node<T> getLastNode(){
-        if (head == null) return  null;
+    private void checkIndexOutOfBounds(int index) {
+        if (index < 0 || index > this.size) throw new IndexOutOfBoundsException();
+    }
+
+    private Node<T> getLastNode() {
+        if (head == null) return null;
         Node<T> currentNode = head;
-        while (currentNode.next != null){
+        while (currentNode.next != null) {
             currentNode = currentNode.next;
         }
         return currentNode;
     }
 
-    private  Node<T> getNodeOfIndex(int index){
-        if (index >= this.size || index < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-//        if (head == null) return null;
-//        if (index == size-1) return getLastNode();
-
+    private Node<T> getNodeOfIndex(int index) {
         int i = 0;
         Node<T> currentNode = head;
-        while (i != index){
+        while (i < index) {
             currentNode = currentNode.next;
             i++;
         }
         return currentNode;
     }
+
 
 }
